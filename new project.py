@@ -20,7 +20,7 @@ R   = "\033[0m";  B  = "\033[1m";  DIM = "\033[2m"
 CY  = "\033[96m"; GR = "\033[92m"; YL  = "\033[93m"; RD = "\033[91m"
 
 SYSTEM_PROMPT = (
-        ""
+        ""         ##met ton prompt z3ma cmt l'ia se comporte##
 )
 
 def banner():
@@ -42,12 +42,12 @@ def get_api_key():
     if API_KEY_FILE.exists():
         key = API_KEY_FILE.read_text().strip()
         if key: return key
-    print(f"{YL}Clé API NVIDIA NIM introuvable.{R}")
-    print(f"   Sera sauvegardée dans : {API_KEY_FILE}\n")
-    key = input(f"{CY}   Colle ta clé nvapi-... : {R}").strip()
+    print(f"{YL}pas d'api{R}")
+    print(f"   save dans : {API_KEY_FILE}\n")
+    key = input(f"{CY}   Colle ta clé nvapi : {R}").strip()
     if key:
         API_KEY_FILE.write_text(key)
-        print(f"{GR}   Clé sauvegardée.\n{R}")
+        print(f"{GR}   save.\n{R}")
     return key
 
 def read_file(path_str):
@@ -55,7 +55,7 @@ def read_file(path_str):
     if not path.exists():
         return None, f"Fichier introuvable : {path}"
     if path.stat().st_size > 20 * 1024 * 1024:
-        return None, "Fichier trop volumineux (max 20 Mo)"
+        return None, "max 20mo"
     try:
         return path.read_text(encoding="utf-8", errors="replace"), None
     except Exception as e:
@@ -68,10 +68,6 @@ def write_file(path_str, content):
     return path
 
 def extract_and_save_files(ai_response):
-    """
-    Détecte les blocs ```filename:chemin ... ``` dans la réponse de l'IA
-    et les sauvegarde automatiquement.
-    """
     import re
 
     pattern = r"```(?:filename:|file:)([^\n]+)\n([\s\S]*?)```"
@@ -83,7 +79,7 @@ def extract_and_save_files(ai_response):
             p = write_file(fname, content)
             saved.append(str(p))
         except Exception as e:
-            print(f"{RD}  Erreur écriture {fname} : {e}{R}")
+            print(f"{RD}  erreur writing {fname} : {e}{R}")
     return saved
 
 
@@ -120,7 +116,7 @@ def stream_response(response):
                 pass
     return full
 
-
+##help fait pas l'ia sah 2 sah##
 def print_help():
     print(f"""
 {B}Commandes :{R}
@@ -156,8 +152,8 @@ def main():
     banner()
     api_key = get_api_key()
     if not api_key:
-        print(f"{RD}Clé API manquante. Abandon.{R}")
-        input("Appuie sur Entrée pour fermer...")
+        print(f"{RD}pas d'api.{R}")
+        input("Appui sur Entrer pour fermer")
         sys.exit(1)
 
 
@@ -192,7 +188,7 @@ def main():
             elif cmd == "/clear":
                 history = fresh_history()
                 pending_files = []
-                print(f"{GR}  Conversation réinitialisée.{R}"); continue
+                print(f"{GR}  Conversation reset{R}"); continue
 
             elif cmd == "/save":
                 save_conversation(history); continue
@@ -208,7 +204,7 @@ def main():
                         print(f"{RD}  {name} : {err}{R}")
                     else:
                         pending_files.append((name, content))
-                        print(f"{GR}  {name} chargé ({len(content):,} car.){R}")
+                        print(f"{GR}  {name} charger ({len(content):,} car.){R}")
                 continue
 
             elif cmd == "/write":
@@ -283,15 +279,15 @@ def main():
 
             saved = extract_and_save_files(full)
             for s in saved:
-                print(f"{GR}  Fichier sauvegardé automatiquement : {s}{R}")
+                print(f"{GR}  Fichier save {s}{R}")
 
             history.append({"role": "assistant", "content": full})
 
         except requests.exceptions.ConnectionError:
-            print(f"{RD}  Vérifie ta connexion.{R}")
+            print(f"{RD}  pas de co.{R}")
             history.pop()
         except Exception as e:
-            print(f"{RD}  Erreur : {e}{R}")
+            print(f"{RD}  Erreur  {e}{R}")
             history.pop()
 
 if __name__ == "__main__":
